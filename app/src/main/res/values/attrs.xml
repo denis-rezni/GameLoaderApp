@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="LoaderDrawAnimationView">
+        <attr name="dotSide" format="float"/>
+        <attr name="circleRadius" format="float"/>
+        <attr name="margin" format="float"/>
+        <attr name="startDelay" format="integer"/>
+        <attr name="duration" format="integer"/>
+        <attr name="scaleTo" format="float"/>
+        <attr name="color" format="color|reference"/>
+    </declare-styleable>
+</resources>

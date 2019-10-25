@@ -5,6 +5,7 @@ import android.animation.AnimatorSet
 import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.res.TypedArray
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
@@ -18,20 +19,43 @@ class LoaderDrawAnimationView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private val circleRadius = dp(2.5f)
-    private val dotSide = dp(6f)
-    private val dotRadius = dotSide / 2
-    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = 0xFFe1e3e6.toInt()
-    }
-    private val betweenCircles = dp(10f)
+
+    private var dotSide: Float
+    private var circleRadius: Float
 
     private val rectWidth = dp(22f)
-    private val rectHeight = dp(6f)
 
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private val margin = dp(16f)
+    private var margin: Float
     private val miniMargin = dp(2f)
+    private val betweenCircles = dp(10f)
+
+    private var animationDuration: Long
+    private var startDelaySet: Long
+    private var scaleTo: Float
+
+    val a: TypedArray =
+        context.obtainStyledAttributes(attrs, R.styleable.LoaderDrawAnimationView, defStyleAttr, 0)
+
+    init {
+        try {
+            dotSide = dp(a.getFloat(R.styleable.LoaderDrawAnimationView_dotSide, 6f))
+            circleRadius = dp(a.getFloat(R.styleable.LoaderDrawAnimationView_circleRadius, 2.5f))
+            margin = dp(a.getFloat(R.styleable.LoaderDrawAnimationView_margin, 16f))
+            startDelaySet = a.getInteger(R.styleable.LoaderDrawAnimationView_startDelay, 1000).toLong()
+            animationDuration = a.getInteger(R.styleable.LoaderDrawAnimationView_duration, 300).toLong()
+            scaleTo = a.getFloat(R.styleable.LoaderDrawAnimationView_scaleTo, 1.3f)
+            paint.color = a.getColor(R.styleable.LoaderDrawAnimationView_color, 0xFFe1e3e6.toInt())
+        } finally {
+            a.recycle()
+        }
+
+    }
+
+    private val dotRadius = dotSide / 2
+    private val rectHeight = dotSide
+
     private val desiredWidth = 2 * miniMargin + margin + rectWidth + dotSide * 2 + betweenCircles
     private val desiredHeight = (rectWidth + 2 * miniMargin)
 
@@ -50,7 +74,7 @@ class LoaderDrawAnimationView @JvmOverloads constructor(
 
     private var turn = 0
     private val pv1 = PropertyValuesHolder.ofFloat("rectRotation", 0f, 180f)
-    private val pv2 = PropertyValuesHolder.ofFloat("circleScale", 1f, 1.3f)
+    private val pv2 = PropertyValuesHolder.ofFloat("circleScale", 1f, scaleTo)
     private val wholeAnimationStep = ValueAnimator.ofPropertyValuesHolder(pv1, pv2).apply {
         addUpdateListener {
             rectRotation = it.getAnimatedValue("rectRotation") as Float
@@ -59,8 +83,8 @@ class LoaderDrawAnimationView @JvmOverloads constructor(
         doOnEnd {
             turn++
             turn %= 6
-            if(turn == 0){
-                postDelayed({ this.start() }, 1000L)
+            if (turn == 0) {
+                postDelayed({ this.start() }, startDelaySet)
             } else {
                 this.start()
             }
@@ -76,7 +100,7 @@ class LoaderDrawAnimationView @JvmOverloads constructor(
         animator = AnimatorSet().apply {
             interpolator = PathInterpolator(0.25F, 0.1F, 0.25F, 1F)
             play(wholeAnimationStep)
-            duration = 300L
+            duration = animationDuration
             start()
         }
     }
@@ -99,7 +123,7 @@ class LoaderDrawAnimationView @JvmOverloads constructor(
         if (turn == 1) {
             canvas.scale(circleScale, circleScale, dotRadius, dotRadius)
         } else if (turn == 2) {
-            canvas.scale(2.3f - circleScale, 2.3f - circleScale, dotRadius, dotRadius)
+            canvas.scale(scaleTo + 1 - circleScale, scaleTo + 1 - circleScale, dotRadius, dotRadius)
         }
         canvas.drawRoundRect(0f, 0f, dotSide, dotSide, circleRadius, circleRadius, paint)
 
@@ -112,7 +136,7 @@ class LoaderDrawAnimationView @JvmOverloads constructor(
         if (turn == 2) {
             canvas.scale(circleScale, circleScale, dotRadius, dotRadius)
         } else if (turn == 3) {
-            canvas.scale(2.3f - circleScale, 2.3f - circleScale, dotRadius, dotRadius)
+            canvas.scale(scaleTo + 1 - circleScale, scaleTo + 1 - circleScale, dotRadius, dotRadius)
         }
         canvas.drawRoundRect(0f, 0f, dotSide, dotSide, circleRadius, circleRadius, paint)
 
@@ -126,7 +150,7 @@ class LoaderDrawAnimationView @JvmOverloads constructor(
         if (turn == 3) {
             canvas.scale(circleScale, circleScale, dotRadius, dotRadius)
         } else if (turn == 4) {
-            canvas.scale(2.3f - circleScale, 2.3f - circleScale, dotRadius, dotRadius)
+            canvas.scale(scaleTo + 1 - circleScale, scaleTo + 1 - circleScale, dotRadius, dotRadius)
         }
         canvas.drawRoundRect(0f, 0f, dotSide, dotSide, circleRadius, circleRadius, paint)
 
@@ -137,7 +161,7 @@ class LoaderDrawAnimationView @JvmOverloads constructor(
         if (turn == 4) {
             canvas.scale(circleScale, circleScale, dotRadius, dotRadius)
         } else if (turn == 5) {
-            canvas.scale(2.3f - circleScale, 2.3f - circleScale, dotRadius, dotRadius)
+            canvas.scale(scaleTo + 1 - circleScale, scaleTo + 1 - circleScale, dotRadius, dotRadius)
         }
         canvas.drawRoundRect(0f, 0f, dotSide, dotSide, circleRadius, circleRadius, paint)
 
