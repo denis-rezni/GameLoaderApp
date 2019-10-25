@@ -19,7 +19,7 @@ class AnimatedTextView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-//        color = 0xFFc2e8ce.toInt()
+        //        color = 0xFFc2e8ce.toInt()
         color = Color.BLACK
     }
     private val desiredWidth = dp(64f)
@@ -54,6 +54,7 @@ class AnimatedTextView @JvmOverloads constructor(
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        correctTextSize()
         setMeasuredDimension(
             getSize(widthMeasureSpec, desiredWidth.toInt()),
             getSize(heightMeasureSpec, desiredHeight.toInt())
@@ -63,9 +64,9 @@ class AnimatedTextView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         val save = canvas.save()
-        paint.textSize = dp(25f)
+//        paint.textSize = dp(18f)
         paint.alpha = textAlpha
-        canvas.drawText(text, 0f, desiredHeight, paint)
+        canvas.drawText(text, 0f, desiredHeight * 0.75f, paint)
         canvas.restoreToCount(save)
     }
 
@@ -75,6 +76,21 @@ class AnimatedTextView @JvmOverloads constructor(
 
         animator?.cancel()
         animator = null
+    }
+
+    private fun correctTextSize() {
+        var low = 0f
+        var high = 100f
+        var m: Float
+        for (i in 0 until 10) {
+            m = (low + high) / 2
+            paint.textSize = m;
+            if (paint.measureText(text) > desiredWidth) {
+                high = m
+            } else {
+                low = m
+            }
+        }
     }
 
 
